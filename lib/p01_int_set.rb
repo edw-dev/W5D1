@@ -10,8 +10,7 @@ class MaxIntSet
       @store[num] = true
     else
       raise "Out of bounds"
-    end
-  end
+    end end
 
   def remove(num)
     @store[num] = false
@@ -38,13 +37,14 @@ class IntSet
   end
 
   def insert(num)
+    self[num] << num
   end
 
   def remove(num)
+    self[num].delete_at(self[num].index(num))
   end
 
   def include?(num)
-    #return false if self[num].nil?
     self[num].any?{|ele| ele == num}
   end
 
@@ -61,7 +61,7 @@ class IntSet
 end
 
 class ResizingIntSet
-  attr_reader :count
+  attr_accessor :store, :num_buckets, :count
 
   def initialize(num_buckets = 20)
     @store = Array.new(num_buckets) { Array.new }
@@ -69,17 +69,27 @@ class ResizingIntSet
   end
 
   def insert(num)
+    resize! if @count == @store.length 
+    self[num] << num if self[num].empty? || self[num].none? { |ele| ele == num } 
   end
 
   def remove(num)
+    index = self[num].index(num)
+    self[num].delete_at(index) unless index.nil?
   end
 
   def include?(num)
+    self[num].include?(num)
+  end
+
+  def count
+    @store.flatten.length
   end
 
   private
 
   def [](num)
+    @store[num%num_buckets]
     # optional but useful; return the bucket corresponding to `num`
   end
 
@@ -88,5 +98,19 @@ class ResizingIntSet
   end
 
   def resize!
+    #if self.count >= @store.length
+      storage = []
+      @store.each do |subs|
+        until subs.empty?
+          storage << subs.pop
+        end
+      end
+      # num_buckets
+      @store = Array.new(@store.length * 2) {Array.new}
+      storage.each do |ele|
+        new_idx = ele % num_buckets
+        @store[new_idx] << ele
+      end
+    #end
   end
 end
