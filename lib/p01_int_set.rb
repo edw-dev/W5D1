@@ -1,3 +1,4 @@
+require "byebug"
 class MaxIntSet
   attr_accessor :store, :max
   def initialize(max)
@@ -65,11 +66,10 @@ class ResizingIntSet
 
   def initialize(num_buckets = 20)
     @store = Array.new(num_buckets) { Array.new }
-    @count = 0
   end
 
   def insert(num)
-    resize! if @count == @store.length 
+    resize! if count == @store.length 
     self[num] << num if self[num].empty? || self[num].none? { |ele| ele == num } 
   end
 
@@ -98,19 +98,17 @@ class ResizingIntSet
   end
 
   def resize!
-    #if self.count >= @store.length
+    #debugger
       storage = []
       @store.each do |subs|
         until subs.empty?
           storage << subs.pop
         end
       end
-      # num_buckets
       @store = Array.new(@store.length * 2) {Array.new}
       storage.each do |ele|
-        new_idx = ele % num_buckets
+        new_idx = ele % (@store.length * 2)
         @store[new_idx] << ele
       end
-    #end
   end
 end
